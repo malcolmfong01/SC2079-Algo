@@ -16,7 +16,7 @@ def load_path():
     return path
 
 def load_obstacles():
-    with open('sample_input.json') as f:
+    with open('input.json') as f:
         data = json.load(f)
     return [{'x': obs['x'], 'y': obs['y']} for obs in data['obstacles']]
 

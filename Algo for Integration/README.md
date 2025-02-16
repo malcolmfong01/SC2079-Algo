@@ -234,5 +234,5 @@ python3 main.py input.json output.json
 For console visualisation:
 
 ```bash
-python3 visualise.py output.json
+python3 visualize_path.py output.json
 ```
