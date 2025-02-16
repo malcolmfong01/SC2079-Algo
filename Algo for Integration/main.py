@@ -182,4 +182,4 @@ if __name__ == "__main__":
         
     main(sys.argv[1], sys.argv[2])
 
-# run this code: python3 standalone_path_finder.py sample_input.json output.json
+# run this code: python3 main.py input.json output.json
