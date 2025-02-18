@@ -9,10 +9,11 @@
 
 #### Direction of the robot (d)
 
-- `NORTH` - `UP` - 0
-- `EAST` - `RIGHT` - 2
-- `SOUTH` - `DOWN` - 4
-- `WEST` - `LEFT` 6
+- `NORTH` - `UP` : 0
+- `EAST` - `RIGHT` : 2
+- `SOUTH` - `DOWN` : 4
+- `WEST` - `LEFT` : 6
+- `HIDDEN` - `UNKNOWN` : -1
 
 #### Parameters
 
