@@ -2,6 +2,7 @@ import json
 from algo import MazeSolver
 from consts import Direction
 from Entity import CellState
+from processing import convert_hidden_obstacles
 
 def load_input_from_file(input_file):
     """Load input data from JSON file"""
@@ -146,6 +147,9 @@ def process_path_finding(input_data):
     robot_direction = Direction(input_data['robot_dir'])
     retrying = input_data.get('retrying', False)
 
+    # Convert hidden obstacles
+    obstacles = convert_hidden_obstacles(obstacles)
+
     maze_solver = MazeSolver(20, 20, robot_x, robot_y, robot_direction)
     
     for ob in obstacles:
@@ -177,9 +181,7 @@ def main(input_file, output_file):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 3:
-        print("Usage: python3 standalone_path_finder.py <input_file> <output_file>")
+        print("Usage: python3 main.py <input_file> <output_file>")
         sys.exit(1)
         
     main(sys.argv[1], sys.argv[2])
-
-# run this code: python3 main.py input.json output.json

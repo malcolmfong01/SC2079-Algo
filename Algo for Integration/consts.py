@@ -7,6 +7,7 @@ class Direction(int, Enum):
     SOUTH = 4
     WEST = 6
     SKIP = 8
+    HIDDEN = -1
 
     def __int__(self):
         return self.value

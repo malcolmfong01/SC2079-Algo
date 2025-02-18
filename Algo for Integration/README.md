@@ -224,6 +224,7 @@ Sample JSON response:
 ```
 
 #### Make sure to traverse into /Algo for Integration folder and run the following command in your terminal to get the above JSON response:
+
 ```bash
 cd ./Algo\ for\ Integration/
 ```
