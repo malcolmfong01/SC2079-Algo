@@ -1,1 +1,0 @@
-python3 visualise.py output.json

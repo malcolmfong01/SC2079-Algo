@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <h1 align="center">
-    CZ3004/SC2079 Multidisciplinary Project - Algorithm API
+    CZ3004/SC2079 Multidisciplinary Project - Algorithm
   </h1>
 </p>
 
@@ -225,7 +225,7 @@ Sample JSON response:
 
 #### Make sure to traverse into Algo for Integration folder and run the following command in your terminal to get the above JSON response:
 
-Start the algorithm computing by
+Start the algorithm computing by:
 
 ```bash
 python3 main.py input.json output.json
