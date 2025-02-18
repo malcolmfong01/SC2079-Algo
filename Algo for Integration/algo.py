@@ -7,8 +7,8 @@ from Entity import Obstacle, CellState, Grid
 from consts import Direction, MOVE_DIRECTION, TURN_FACTOR, ITERATIONS, TURN_RADIUS, SAFE_COST
 from python_tsp.exact import solve_tsp_dynamic_programming
 
-turn_wrt_big_turns = [[3 * TURN_RADIUS, TURN_RADIUS],
-                  [4 * TURN_RADIUS, 2 * TURN_RADIUS]]
+turn_wrt_big_turns = [[3 * TURN_RADIUS, 3 * TURN_RADIUS],
+                  [4 * TURN_RADIUS, 4 * TURN_RADIUS]]
 
 class MazeSolver:
     def __init__(
