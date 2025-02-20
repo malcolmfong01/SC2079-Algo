@@ -152,6 +152,174 @@ class MazeSolver:
 
         return 0
 
+    def get_turn_quadrant(self, from_direction: Direction, to_direction: Direction) -> int:
+        """
+        Determine which quadrant the turn belongs to:
+        1: north->east / west->south - green area bottom right
+        2: north->west / east->south - green area bottom left
+        3: south->east / west->north - green area top right
+        4: south->west / east->north - green area top left
+        """
+        # First quadrant: north->east / west->south
+        if ((from_direction == Direction.NORTH and to_direction == Direction.EAST) or 
+            (from_direction == Direction.WEST and to_direction == Direction.SOUTH)):
+            return 1
+        
+        # Second quadrant: north->west / east->south
+        elif ((from_direction == Direction.NORTH and to_direction == Direction.WEST) or 
+              (from_direction == Direction.EAST and to_direction == Direction.SOUTH)):
+            return 2
+        
+        # Third quadrant: south->west / east->north
+        elif ((from_direction == Direction.SOUTH and to_direction == Direction.WEST) or 
+              (from_direction == Direction.EAST and to_direction == Direction.NORTH)):
+            return 3
+        
+        # Fourth quadrant: south->east / west->north
+        elif ((from_direction == Direction.SOUTH and to_direction == Direction.EAST) or 
+              (from_direction == Direction.WEST and to_direction == Direction.NORTH)):
+            return 4
+        return 0  # Invalid turn
+
+    def is_in_green_area(self, robot_x: int, robot_y: int, robot_dir: Direction, x: int, y: int, quadrant: int) -> bool:
+        """
+        Determine if a point (x,y) is in the green area based on:
+        1. Robot's current position and direction
+        2. Turn quadrant (which determines the position after turn)
+        3. Point to check
+        """
+        # Initialize new coordinates
+        new_x = robot_x
+        new_y = robot_y
+        
+        # Determine new coordinates of robot after turn and the center of green area
+        if quadrant == 1:
+            if robot_dir == Direction.NORTH:
+                new_x = robot_x + TURN_RADIUS
+                new_y = robot_y + TURN_RADIUS
+            elif robot_dir == Direction.WEST:
+                new_x = robot_x - TURN_RADIUS
+                new_y = robot_y - TURN_RADIUS
+            green_x = max(robot_x, new_x)
+            green_y = min(robot_y, new_y)
+
+        elif quadrant == 2:
+            if robot_dir == Direction.NORTH:
+                new_x = robot_x - TURN_RADIUS
+                new_y = robot_y + TURN_RADIUS
+            elif robot_dir == Direction.EAST:
+                new_x = robot_x + TURN_RADIUS
+                new_y = robot_y - TURN_RADIUS
+            green_x = min(robot_x, new_x)
+            green_y = min(robot_y, new_y)
+
+        elif quadrant == 3:  # South->West / East->North
+            if robot_dir == Direction.SOUTH:
+                new_x = robot_x - TURN_RADIUS
+                new_y = robot_y - TURN_RADIUS
+            elif robot_dir == Direction.EAST:
+                new_x = robot_x + TURN_RADIUS
+                new_y = robot_y + TURN_RADIUS
+            green_x = min(robot_x, new_x)
+            green_y = max(robot_y, new_y)
+
+        elif quadrant == 4:  # South->East / West->North
+            if robot_dir == Direction.SOUTH:
+                new_x = robot_x + TURN_RADIUS
+                new_y = robot_y - TURN_RADIUS
+            elif robot_dir == Direction.WEST:
+                new_x = robot_x - TURN_RADIUS
+                new_y = robot_y + TURN_RADIUS
+            green_x = max(robot_x, new_x)
+            green_y = max(robot_y, new_y)
+        else:
+            return False
+
+        # Check if the point is in the 3x3 green area
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (green_x + i == x) and (green_y + j == y):
+                    return True
+        return False
+
+    def get_turn_area(self, current_x: int, current_y: int, robot_dir: Direction, to_direction: Direction) -> tuple:
+        """
+        Determine the bounds of the area to check for obstacles during a turn.
+        Returns (smallest_x, smallest_y, biggest_x, biggest_y) defining the area bounds.
+        """
+        # Get the quadrant and calculate turn position
+        quadrant = self.get_turn_quadrant(robot_dir, to_direction)
+        if quadrant == 0:  # Invalid turn
+            return (0, 0, 0, 0)
+
+        # Calculate turn position based on quadrant and direction
+        turn_x = current_x
+        turn_y = current_y
+        
+        if quadrant == 1:  # Bottom right turn
+            if robot_dir == Direction.NORTH:
+                turn_x = current_x + TURN_RADIUS
+                turn_y = current_y + TURN_RADIUS
+            elif robot_dir == Direction.WEST:
+                turn_x = current_x - TURN_RADIUS
+                turn_y = current_y - TURN_RADIUS
+
+        elif quadrant == 2:  # Bottom left turn
+            if robot_dir == Direction.NORTH:
+                turn_x = current_x - TURN_RADIUS
+                turn_y = current_y + TURN_RADIUS
+            elif robot_dir == Direction.EAST:
+                turn_x = current_x + TURN_RADIUS
+                turn_y = current_y - TURN_RADIUS
+
+        elif quadrant == 3:  # South->West / East->North
+            if robot_dir == Direction.SOUTH:
+                turn_x = current_x - TURN_RADIUS
+                turn_y = current_y - TURN_RADIUS
+            elif robot_dir == Direction.EAST:
+                turn_x = current_x + TURN_RADIUS
+                turn_y = current_y + TURN_RADIUS
+
+        elif quadrant == 4:  # South->East / West->North
+            if robot_dir == Direction.SOUTH:
+                turn_x = current_x + TURN_RADIUS
+                turn_y = current_y - TURN_RADIUS
+            elif robot_dir == Direction.WEST:
+                turn_x = current_x - TURN_RADIUS
+                turn_y = current_y + TURN_RADIUS
+
+        # Calculate area bounds
+        smallest_x = min(current_x, turn_x) - 1
+        smallest_y = min(current_y, turn_y) - 1
+        biggest_x = max(current_x, turn_x) + 1
+        biggest_y = max(current_y, turn_y) + 1
+
+        return (smallest_x, smallest_y, biggest_x, biggest_y)
+
+    def is_turn_valid(self, current_x: int, current_y: int, robot_dir: Direction, to_direction: Direction, obstacles: List[Obstacle]) -> bool:
+        """
+        Validate if the turn is legal by checking obstacles within the turn area bounds.
+        Obstacles in the green area are ignored.
+        """
+        # Get the area bounds
+        smallest_x, smallest_y, biggest_x, biggest_y = self.get_turn_area(current_x, current_y, robot_dir, to_direction)
+        
+        # Get the quadrant for green area check
+        quadrant = self.get_turn_quadrant(robot_dir, to_direction)
+        if quadrant == 0:  # Invalid turn
+            return False
+
+        # Check each obstacle
+        for obstacle in obstacles:
+            # If obstacle is within the bounds
+            if (smallest_x <= obstacle.x <= biggest_x and 
+                smallest_y <= obstacle.y <= biggest_y):
+                # If obstacle is not in green area, turn is invalid
+                if not self.is_in_green_area(current_x, current_y, robot_dir, obstacle.x, obstacle.y, quadrant):
+                    return False
+        
+        return True
+
     def get_neighbors(self, x, y, direction):
         """
         Return a list of tuples with format:
