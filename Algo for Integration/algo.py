@@ -7,9 +7,6 @@ from Entity import Obstacle, CellState, Grid
 from consts import Direction, MOVE_DIRECTION, TURN_FACTOR, ITERATIONS, TURN_RADIUS, SAFE_COST
 from python_tsp.exact import solve_tsp_dynamic_programming
 
-turn_wrt_big_turns = [[TURN_RADIUS, TURN_RADIUS],
-                  [TURN_RADIUS + 1, TURN_RADIUS + 1]]
-
 class MazeSolver:
     def __init__(
             self,
@@ -24,10 +21,6 @@ class MazeSolver:
         self.robot = Robot(robot_x, robot_y, robot_direction)
         self.path_table = dict()
         self.cost_table = dict()
-        if big_turn is None:
-            self.big_turn = 0
-        else:
-            self.big_turn = int(big_turn)
 
     def add_obstacle(self, x: int, y: int, direction: Direction, obstacle_id: int):
         obstacle = Obstacle(x, y, direction, obstacle_id)
@@ -188,6 +181,10 @@ class MazeSolver:
         2. Turn quadrant (which determines the position after turn)
         3. Point to check
         """
+        # No green area if turn radius is too small
+        if TURN_RADIUS < 4:
+            return False
+            
         # Initialize new coordinates
         new_x = robot_x
         new_y = robot_y
@@ -336,80 +333,50 @@ class MazeSolver:
                     neighbors.append((x - dx, y - dy, md, safe_cost))
 
             else:
-                bigger_change = turn_wrt_big_turns[self.big_turn][0]
-                smaller_change = turn_wrt_big_turns[self.big_turn][1]
+                # Calculate turn position based on quadrant and direction
+                quadrant = self.get_turn_quadrant(direction, md)
+                if quadrant == 0:  # Invalid turn
+                    continue
 
-                if direction == Direction.NORTH and md == Direction.EAST:
-                    if self.grid.reachable(x + bigger_change, y + smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + bigger_change, y + smaller_change)
-                        neighbors.append((x + bigger_change, y + smaller_change, md, safe_cost + 10))
+                # Calculate turn position based on quadrant and direction
+                if quadrant == 1:  # Bottom right turn
+                    if direction == Direction.NORTH:
+                        turn_x = x + TURN_RADIUS
+                        turn_y = y + TURN_RADIUS
+                    elif direction == Direction.WEST:
+                        turn_x = x - TURN_RADIUS
+                        turn_y = y - TURN_RADIUS
 
-                    if self.grid.reachable(x - smaller_change, y - bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - smaller_change, y - bigger_change)
-                        neighbors.append((x - smaller_change, y - bigger_change, md, safe_cost + 10))
+                elif quadrant == 2:  # Bottom left turn
+                    if direction == Direction.NORTH:
+                        turn_x = x - TURN_RADIUS
+                        turn_y = y + TURN_RADIUS
+                    elif direction == Direction.EAST:
+                        turn_x = x + TURN_RADIUS
+                        turn_y = y - TURN_RADIUS
 
-                if direction == Direction.EAST and md == Direction.NORTH:
-                    if self.grid.reachable(x + smaller_change, y + bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + smaller_change, y + bigger_change)
-                        neighbors.append((x + smaller_change, y + bigger_change, md, safe_cost + 10))
+                elif quadrant == 3:  # South->West / East->North
+                    if direction == Direction.SOUTH:
+                        turn_x = x - TURN_RADIUS
+                        turn_y = y - TURN_RADIUS
+                    elif direction == Direction.EAST:
+                        turn_x = x + TURN_RADIUS
+                        turn_y = y + TURN_RADIUS
 
-                    if self.grid.reachable(x - bigger_change, y - smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - bigger_change, y - smaller_change)
-                        neighbors.append((x - bigger_change, y - smaller_change, md, safe_cost + 10))
+                elif quadrant == 4:  # South->East / West->North
+                    if direction == Direction.SOUTH:
+                        turn_x = x + TURN_RADIUS
+                        turn_y = y - TURN_RADIUS
+                    elif direction == Direction.WEST:
+                        turn_x = x - TURN_RADIUS
+                        turn_y = y + TURN_RADIUS
 
-                if direction == Direction.EAST and md == Direction.SOUTH:
-                    if self.grid.reachable(x + smaller_change, y - bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + smaller_change, y - bigger_change)
-                        neighbors.append((x + smaller_change, y - bigger_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x - bigger_change, y + smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - bigger_change, y + smaller_change)
-                        neighbors.append((x - bigger_change, y + smaller_change, md, safe_cost + 10))
-
-                if direction == Direction.SOUTH and md == Direction.EAST:
-                    if self.grid.reachable(x + bigger_change, y - smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + bigger_change, y - smaller_change)
-                        neighbors.append((x + bigger_change, y - smaller_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x - smaller_change, y + bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - smaller_change, y + bigger_change)
-                        neighbors.append((x - smaller_change, y + bigger_change, md, safe_cost + 10))
-
-                if direction == Direction.SOUTH and md == Direction.WEST:
-                    if self.grid.reachable(x - bigger_change, y - smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - bigger_change, y - smaller_change)
-                        neighbors.append((x - bigger_change, y - smaller_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x + smaller_change, y + bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + smaller_change, y + bigger_change)
-                        neighbors.append((x + smaller_change, y + bigger_change, md, safe_cost + 10))
-
-                if direction == Direction.WEST and md == Direction.SOUTH:
-                    if self.grid.reachable(x - smaller_change, y - bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - smaller_change, y - bigger_change)
-                        neighbors.append((x - smaller_change, y - bigger_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x + bigger_change, y + smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + bigger_change, y + smaller_change)
-                        neighbors.append((x + bigger_change, y + smaller_change, md, safe_cost + 10))
-
-                if direction == Direction.WEST and md == Direction.NORTH:
-                    if self.grid.reachable(x - smaller_change, y + bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - smaller_change, y + bigger_change)
-                        neighbors.append((x - smaller_change, y + bigger_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x + bigger_change, y - smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + bigger_change, y - smaller_change)
-                        neighbors.append((x + bigger_change, y - smaller_change, md, safe_cost + 10))
-
-                if direction == Direction.NORTH and md == Direction.WEST:
-                    if self.grid.reachable(x + smaller_change, y - bigger_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x + smaller_change, y - bigger_change)
-                        neighbors.append((x + smaller_change, y - bigger_change, md, safe_cost + 10))
-
-                    if self.grid.reachable(x - bigger_change, y + smaller_change, turn = True) and self.grid.reachable(x, y, preTurn = True):
-                        safe_cost = self.get_safe_cost(x - bigger_change, y + smaller_change)
-                        neighbors.append((x - bigger_change, y + smaller_change, md, safe_cost + 10))
+                reachable = self.grid.reachable(turn_x, turn_y, turn=True)
+                valid_turn = self.is_turn_valid(x, y, direction, md, self.grid.obstacles)
+                
+                if reachable and valid_turn:
+                    safe_cost = self.get_safe_cost(turn_x, turn_y)
+                    neighbors.append((turn_x, turn_y, md, safe_cost + 10))
 
         return neighbors
 

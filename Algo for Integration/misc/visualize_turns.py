@@ -114,7 +114,7 @@ def visualize_turn_area(solver: MazeSolver, start_x: int, start_y: int,
     
     # Add curved arrow to show turn path
     # Calculate radius and angle based on quadrant and direction
-    if quadrant == 1:  # Bottom right turn
+    if quadrant == 1:  # Top Left Quadrant
         rad = -0.3 if robot_dir == Direction.NORTH else 0.3
     elif quadrant == 2:  # Bottom left turn
         rad = 0.3 if robot_dir == Direction.NORTH else -0.3

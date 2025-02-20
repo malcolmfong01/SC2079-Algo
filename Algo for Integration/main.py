@@ -20,49 +20,53 @@ def filter_states(path):
     start_state = path[0]
     filtered_path.append(start_state)
     
-    for i in range(1, len(path)):
-        prev_state = path[i - 1]
+    i = 1
+    while i < len(path):
         current_state = path[i]
+        prev_state = filtered_path[-1]  # Always compare with last filtered state
         
-        # Always include states with snapshots
+        # Always include snapshots
         if current_state['s'] != -1:
             filtered_path.append(current_state)
+            i += 1
             continue
         
-        # Check if there is a turn based on direction change
-        if prev_state['d'] != current_state['d']:
-            # Add the last state of the straight path
-            filtered_path.append(prev_state)
-            # Add the first state after the turn
-            filtered_path.append(current_state)
-        elif i == len(path) - 1:
-            # Add the last state of the path
-            filtered_path.append(current_state)
-        else:
-            # Check if the current state is part of a straight path
-            if (prev_state['x'] != current_state['x'] or prev_state['y'] != current_state['y']):
-                # Only add the current state if it's the end of a straight path
-                if i < len(path) - 1:
-                    next_state = path[i + 1]
-                    if current_state['d'] != next_state['d']:
-                        filtered_path.append(current_state)
-                else:
+        # For straight line movement
+        if current_state['d'] == prev_state['d']:
+            # Look ahead to find where straight line ends
+            straight_end = i
+            while straight_end < len(path) - 1:
+                next_state = path[straight_end + 1]
+                # Stop if direction changes or snapshot
+                if next_state['d'] != current_state['d'] or next_state['s'] != -1:
+                    break
+                straight_end += 1
+            
+            # Only add state if there's actual movement
+            end_state = path[straight_end]
+            if (end_state['x'] != prev_state['x'] or end_state['y'] != prev_state['y']):
+                filtered_path.append(end_state)
+            i = straight_end + 1
+            continue
+        
+        # For direction changes
+        if current_state['d'] != prev_state['d']:
+            # Look ahead to see if this turn leads to movement
+            next_idx = i + 1
+            while next_idx < len(path):
+                next_state = path[next_idx]
+                if (next_state['x'] != current_state['x'] or 
+                    next_state['y'] != current_state['y'] or
+                    next_state['s'] != -1):
                     filtered_path.append(current_state)
+                    break
+                if next_state['d'] != current_state['d']:
+                    break
+                next_idx += 1
+            
+        i += 1
     
-    # Ensure the end state is included
-    if filtered_path[-1] != path[-1]:
-        filtered_path.append(path[-1])
-    
-    # Remove duplicates
-    unique_filtered_path = []
-    seen = set()
-    for state in filtered_path:
-        state_tuple = (state['x'], state['y'], state['d'], state['s'])
-        if state_tuple not in seen:
-            unique_filtered_path.append(state)
-            seen.add(state_tuple)
-    
-    return unique_filtered_path
+    return filtered_path
 
 def generate_commands(path):
     """Generate command sequence from path"""

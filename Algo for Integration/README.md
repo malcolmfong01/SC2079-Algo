@@ -13,7 +13,7 @@
 - `EAST` - `RIGHT` : 2
 - `SOUTH` - `DOWN` : 4
 - `WEST` - `LEFT` : 6
-- `HIDDEN` - `UNKNOWN` : -1
+- `HIDDEN (Only for Checklist A5)` - `UNKNOWN` : -1
 
 #### Parameters
 
@@ -21,8 +21,8 @@
 - `WIDTH` - Width of the area (in 10cm units)
 - `HEIGHT` - Height of the area (in 10cm units)
 - `ITERATIONS` - Number of iterations to run the algorithm for. Higher number of iterations will result in a more accurate shortest path, but will take longer to run. Useful to tweak if robot is not finding the shortest path.
-- `TURN_RADIUS` - Number of units the robot turns. We set the turns to `3 * TURN_RADIUS, 1 * TURN_RADIUS` units. Can be tweaked in the algorithm
-- `SAFE_COST` - Used to penalise the robot for moving too close to the obstacles. Currently set to `1000`. Take a look at `get_safe_cost` to tweak.
+- `TURN_RADIUS` - Number of units the robot turns. We set the turns to `TURN_RADIUS` units. Can be tweaked in the algorithm
+- `SAFE_COST` - Used to penalise the robot for moving too close to the obstacles. Currently set to `0`. Take a look at `get_safe_cost` to tweak.
 - `SCREENSHOT_COST` - Used to penalise the robot for taking pictures from a position that is not directly in front of the symbol.
 
 ### API Endpoints:
