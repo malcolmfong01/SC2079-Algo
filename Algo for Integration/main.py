@@ -1,7 +1,6 @@
 import json
 from algo import MazeSolver
 from consts import Direction
-from Entity import CellState
 from processing import convert_hidden_obstacles
 
 def load_input_from_file(input_file):
@@ -83,6 +82,7 @@ def generate_commands(path):
         # Check if direction changes
         if state['d'] != current_direction:
             # Determine turn type
+            angle = 90  # Default 90-degree turn
             if (current_direction == 0 and state['d'] == 2) or \
                (current_direction == 2 and state['d'] == 4) or \
                (current_direction == 4 and state['d'] == 6) or \
@@ -92,9 +92,11 @@ def generate_commands(path):
                    (current_direction == 2 and dy < 0) or \
                    (current_direction == 4 and dx < 0) or \
                    (current_direction == 6 and dy > 0):
-                    turn_command = "FR00"
+                    # Convert FR00 to RF090
+                    turn_command = f"RF{angle:03d}"
                 else:
-                    turn_command = "BL00"
+                    # Convert BL00 to LB090
+                    turn_command = f"LB{angle:03d}"
             elif (current_direction == 0 and state['d'] == 6) or \
                  (current_direction == 6 and state['d'] == 4) or \
                  (current_direction == 4 and state['d'] == 2) or \
@@ -104,9 +106,11 @@ def generate_commands(path):
                    (current_direction == 2 and dy > 0) or \
                    (current_direction == 4 and dx > 0) or \
                    (current_direction == 6 and dy < 0):
-                    turn_command = "FL00"
+                    # Convert FL00 to LF090
+                    turn_command = f"LF{angle:03d}"
                 else:
-                    turn_command = "BR00"
+                    # Convert BR00 to RB090
+                    turn_command = f"RB{angle:03d}"
             
             # Emit turn command
             commands.append(turn_command)
@@ -122,17 +126,20 @@ def generate_commands(path):
         
         # Determine movement command
         if state['d'] == current_direction:
+            # Calculate distance in cm
+            distance = (abs(dx) if dx != 0 else abs(dy)) * 10
+            
             # Forward movement
             if (current_direction == 0 and dy > 0) or \
                (current_direction == 2 and dx > 0) or \
                (current_direction == 4 and dy < 0) or \
                (current_direction == 6 and dx < 0):
-                distance = (abs(dx) if dx != 0 else abs(dy)) * 10
-                commands.append(f"FW{distance:02d}")
+                # Convert FWxx to SFxxx
+                commands.append(f"SF{distance:03d}")
             # Backward movement
             else:
-                distance = (abs(dx) if dx != 0 else abs(dy)) * 10
-                commands.append(f"BW{distance:02d}")
+                # Convert BWxx to SBxxx
+                commands.append(f"SB{distance:03d}")
         
         # Handle snapshots
         if state['s'] != -1:
@@ -167,15 +174,17 @@ def process_path_finding(input_data):
     
     commands = generate_commands(filtered_path)
     
+    # return {
+    #     "data": {
+    #         'commands': commands,
+    #         'distance': distance,
+    #         'path': filtered_path
+    #     },
+    #     "error": None
+    # }
     return {
-        "data": {
-            'commands': commands,
-            'distance': distance,
-            'path': filtered_path
-        },
-        "error": None
+        'commands': commands,
     }
-
 def main(input_file, output_file):
     """Main function for standalone path finding"""
     input_data = load_input_from_file(input_file)
