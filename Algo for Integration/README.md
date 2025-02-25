@@ -114,14 +114,19 @@ python3 main.py input.json output.json
 This will generate two files:
 
 - `output.json`: Contains only the commands for the robot.
-- `misc/temp_output.json`: Contains the full data structure including path and distance information.
+- `misc/temp_output.json`: Contains the full data structure including path and distance information (only if visualization is enabled).
 
-For console visualisation:
+To disable visualization output:
+
+1. Open `main.py`
+2. Set `ENABLE_VISUALIZATION = False` at the top of the file
+
+For console visualisation (when enabled):
 
 ```bash
 python3 misc/visualize_path.py
 ```
 
-Note: The visualization script reads from `misc/temp_output.json`, so make sure to run the main script before running the visualization. Run both commands from the project root directory.
+Note: The visualization script reads from `misc/temp_output.json`, so make sure to run the main script with visualization enabled before running the visualization. Run both commands from the project root directory.
 
 Currently, TURN_RADIUS is set to 40cm (TURN_RADIUS = 4). To change this, you can modify the TURN_RADIUS variable in the const.py file.
