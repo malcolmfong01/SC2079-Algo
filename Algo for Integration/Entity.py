@@ -1,7 +1,19 @@
 from typing import List
-from consts import Direction, EXPANDED_CELL, SCREENSHOT_COST
-from helper import is_valid
+from consts import HEIGHT, WIDTH, Direction, EXPANDED_CELL, SCREENSHOT_COST
 
+def is_valid(center_x: int, center_y: int):
+    """Checks if given position is within bounds
+
+    Inputs
+    ------
+    center_x (int): x-coordinate
+    center_y (int): y-coordinate
+
+    Returns
+    -------
+    bool: True if valid, False otherwise
+    """
+    return center_x > 0 and center_y > 0 and center_x < WIDTH - 1 and center_y < HEIGHT - 1
 
 class CellState:
     """Base class for all objects on the arena, such as cells, obstacles, etc"""

@@ -21,7 +21,7 @@
 - `WIDTH` - Width of the area (in 10cm units)
 - `HEIGHT` - Height of the area (in 10cm units)
 - `ITERATIONS` - Number of iterations to run the algorithm for. Higher number of iterations will result in a more accurate shortest path, but will take longer to run. Useful to tweak if robot is not finding the shortest path.
-- `TURN_RADIUS` - Number of units the robot turns. We set the turns to `TURN_RADIUS` units. Can be tweaked in the algorithm
+- `TURN_RADIUS` - Radius of turn (in 10cm units)
 - `SAFE_COST` - Used to penalise the robot for moving too close to the obstacles. Currently set to `0`. Take a look at `get_safe_cost` to tweak.
 - `SCREENSHOT_COST` - Used to penalise the robot for taking pictures from a position that is not directly in front of the symbol.
 
@@ -69,158 +69,33 @@ Sample JSON response:
 
 ```
 {
-  "data": {
-    "commands": [
-      "FW30",
-      "FR00",
-      "FW20",
-      "BL00",
-      "BL00",
-      "SNAP1",
-      "BW10",
-      "FR00",
-      "FW20",
-      "BR00",
-      "BR00",
-      "SNAP3",
-      "BW30",
-      "FL00",
-      "FW40",
-      "SNAP2",
-      "FW10",
-      "BR00",
-      "BW70",
-      "BR00",
-      "BW10",
-      "BL00",
-      "SNAP4",
-      "FIN"
-    ],
-    "distance": 154.0,
-    "path": [
-      {
-        "x": 1,
-        "y": 1,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 1,
-        "y": 4,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 4,
-        "y": 5,
-        "d": 2,
-        "s": -1
-      },
-      {
-        "x": 6,
-        "y": 5,
-        "d": 2,
-        "s": -1
-      },
-      {
-        "x": 3,
-        "y": 6,
-        "d": 4,
-        "s": -1
-      },
-      {
-        "x": 4,
-        "y": 9,
-        "d": 6,
-        "s": 1
-      },
-      {
-        "x": 5,
-        "y": 9,
-        "d": 6,
-        "s": -1
-      },
-      {
-        "x": 4,
-        "y": 12,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 4,
-        "y": 14,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 5,
-        "y": 11,
-        "d": 6,
-        "s": -1
-      },
-      {
-        "x": 8,
-        "y": 12,
-        "d": 4,
-        "s": 3
-      },
-      {
-        "x": 8,
-        "y": 15,
-        "d": 4,
-        "s": -1
-      },
-      {
-        "x": 11,
-        "y": 14,
-        "d": 2,
-        "s": -1
-      },
-      {
-        "x": 15,
-        "y": 14,
-        "d": 2,
-        "s": 2
-      },
-      {
-        "x": 16,
-        "y": 14,
-        "d": 2,
-        "s": -1
-      },
-      {
-        "x": 13,
-        "y": 13,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 13,
-        "y": 6,
-        "d": 0,
-        "s": -1
-      },
-      {
-        "x": 14,
-        "y": 3,
-        "d": 6,
-        "s": -1
-      },
-      {
-        "x": 15,
-        "y": 3,
-        "d": 6,
-        "s": -1
-      },
-      {
-        "x": 18,
-        "y": 2,
-        "d": 0,
-        "s": 4
-      }
-    ]
-  },
-  "error": null
+  "commands": [
+    "SF010",
+    "RF090",
+    "SF080",
+    "SF010",
+    "SNAP4",
+    "LB090",
+    "RB090",
+    "SF080",
+    "SF010",
+    "SNAP2",
+    "SB090",
+    "RB090",
+    "SF030",
+    "RB090",
+    "SF010",
+    "SF010",
+    "SNAP1",
+    "SB020",
+    "RF090",
+    "SB010",
+    "RF090",
+    "SB020",
+    "RF090",
+    "SNAP3",
+    "FIN"
+  ]
 }
 ```
 
@@ -236,8 +111,17 @@ Start the algorithm computing by:
 python3 main.py input.json output.json
 ```
 
+This will generate two files:
+
+- `output.json`: Contains only the commands for the robot.
+- `misc/temp_output.json`: Contains the full data structure including path and distance information.
+
 For console visualisation:
 
 ```bash
-python3 visualize_path.py output.json
+python3 misc/visualize_path.py
 ```
+
+Note: The visualization script reads from `misc/temp_output.json`, so make sure to run the main script before running the visualization. Run both commands from the project root directory.
+
+Currently, TURN_RADIUS is set to 40cm (TURN_RADIUS = 4). To change this, you can modify the TURN_RADIUS variable in the const.py file.
