@@ -1,14 +1,32 @@
 {
-    "obstacles": [
-        {
-            "x": 11,
-            "y": 9,
-            "id": 3,
-            "d": -1
-        }
-    ],
-    "robot_x": 1,
-    "robot_y": 1,
-    "robot_dir": 0,
-    "retrying": false
+  "obstacles": [
+    {
+      "x": 0,
+      "y": 9,
+      "id": 1,
+      "d": 2
+    },
+    {
+      "x": 19,
+      "y": 14,
+      "id": 2,
+      "d": 6
+    },
+    {
+      "x": 8,
+      "y": 8,
+      "id": 3,
+      "d": 0
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "id": 4,
+      "d": 6
+    }
+  ],
+  "robot_x": 1,
+  "robot_y": 1,
+  "robot_dir": 0,
+  "retrying": false
 }
