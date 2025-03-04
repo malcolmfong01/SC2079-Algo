@@ -54,7 +54,7 @@ Sample JSON request body:
             "x": 18,
             "y": 6,
             "id": 4,
-            "d": 4
+            "d": 6
         }
     ],
     "robot_x": 1,
@@ -62,7 +62,6 @@ Sample JSON request body:
     "robot_dir": 0,
     "retrying": false
 }
-
 ```
 
 Sample JSON response:
@@ -99,7 +98,11 @@ Sample JSON response:
 }
 ```
 
-#### Make sure to traverse into /Algo for Integration folder and run the following command in your terminal to get the above JSON response:
+### Running the Algorithm
+
+#### Run Locally
+
+Make sure to navigate to the correct directory:
 
 ```bash
 cd ./Algo\ for\ Integration/
@@ -121,7 +124,7 @@ To disable visualization output:
 1. Open `main.py`
 2. Set `ENABLE_VISUALIZATION = False` at the top of the file
 
-For console visualisation (when enabled):
+For console visualization (when enabled):
 
 ```bash
 python3 misc/visualize_path.py
@@ -129,4 +132,59 @@ python3 misc/visualize_path.py
 
 Note: The visualization script reads from `misc/temp_output.json`, so make sure to run the main script with visualization enabled before running the visualization. Run both commands from the project root directory.
 
-Currently, TURN_RADIUS is set to 40cm (TURN_RADIUS = 4). To change this, you can modify the TURN_RADIUS variable in the const.py file.
+#### Run via API Call
+
+Start the API server:
+
+```bash
+python3 api.py
+```
+
+Send a request using `curl`:
+
+```bash
+curl -X POST http://127.0.0.1:5000/path -H "Content-Type: application/json" -d '{
+    "obstacles": [
+        {"x": 0, "y": 9, "id": 1, "d": 2},
+        {"x": 19, "y": 14, "id": 2, "d": 6},
+        {"x": 8, "y": 8, "id": 3, "d": 0},
+        {"x": 18, "y": 6, "id": 4, "d": 6}
+    ],
+    "robot_x": 1,
+    "robot_y": 1,
+    "robot_dir": 0,
+    "retrying": false
+}'
+```
+
+The API will return only the commands:
+
+```json
+[
+  "SF010",
+  "RF090",
+  "SF080",
+  "SF010",
+  "SNAP4",
+  "LB090",
+  "RB090",
+  "SF080",
+  "SF010",
+  "SNAP2",
+  "SB090",
+  "RB090",
+  "SF030",
+  "RB090",
+  "SF010",
+  "SF010",
+  "SNAP1",
+  "SB020",
+  "RF090",
+  "SB010",
+  "RF090",
+  "SB020",
+  "RF090",
+  "SNAP3",
+  "FIN"
+]
+```
