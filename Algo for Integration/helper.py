@@ -121,22 +121,26 @@ def generate_commands(path):
             '''
             firstTwo = turn_command[:2]
 
-            if firstTwo == "RF":
-                commands.append("SF011")
-            elif firstTwo == "LF":
-                commands.append("SB025")
-            elif firstTwo == " LB":
-                commands.append("SB021")
+            if firstTwo == "LF":
+                commands.append("SF008")
+            elif firstTwo == "RF":
+                commands.append("SB004")
+            elif firstTwo == "LB":
+                commands.append("SB023")
+            elif firstTwo == " RB":
+                commands.append("SB020")
 
             # Emit turn command
             commands.append(turn_command)
 
             if firstTwo == "LF":
-                commands.append("SF006")
-            elif firstTwo == "RB":
-                commands.append("SB024")
+                commands.append("SF005")
+            elif firstTwo == "RF":
+                commands.append("SF009")
             elif firstTwo == "LB":
-                commands.append("SB041")
+                commands.append("SB030")
+            elif firstTwo == " RB":
+                commands.append("SB024")
             
             # Handle snapshots
             if state['s'] != -1:
