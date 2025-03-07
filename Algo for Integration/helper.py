@@ -112,6 +112,13 @@ def generate_commands(path):
                     # Convert BR00 to RB090
                     turn_command = f"RB{angle:03d}"
             
+            ''' 
+            HANDLE TURN COMPENSATION
+            Take note that this is for 30cm radius. if you wanna change then change the values accordingly.
+            
+            Find the change in forward distance and side distance.
+            e.g. if robot is at 1,1 and it turns forward right, it is supposed to move to 30cm front, 30cm right. BUT if say it moves 23cm front and 9cm right, then we need to compensate for the remaining distance. so before turn we need to move forward by (30-23cm) (SF007), turn then move forward by (30-9cm) (SF021). REMEMBER TO TAKE NOTE OF THE DIRECTION OF MOVEMENT. if it is a backwards movement, then we need to move backwards instead of forwards.
+            '''
             firstTwo = turn_command[:2]
 
             if firstTwo == "RF":
