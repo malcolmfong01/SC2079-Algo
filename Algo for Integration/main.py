@@ -13,11 +13,12 @@ def save_visualization_data(result):
         json.dump(result, f, indent=2)
 
 def merge_consecutive_moves(commands):
-    """Merge all consecutive identical commands between SNAPs"""
+    """Merge consecutive identical commands, then merge consecutive SF and SB movements."""
     merged = []
     current_cmd = None
     current_total = 0
 
+    # First pass: Merge consecutive identical commands
     for cmd in commands:
         if cmd.startswith('SNAP') or cmd == 'FIN':
             if current_cmd:
@@ -45,7 +46,41 @@ def merge_consecutive_moves(commands):
     if current_cmd:
         merged.append(f"{current_cmd}{current_total:03d}")
 
-    return merged
+    # Second pass: Merge consecutive SF and SB movements correctly
+    final_merged = []
+    straight_total = 0  # Net straight movement
+    prev_straight = None
+
+    for cmd in merged:
+        if cmd.startswith(('SF', 'SB')):
+            cmd_type = cmd[:2]
+            cmd_value = int(cmd[2:])
+
+            # Convert SF to positive and SB to negative for summing
+            if cmd_type == 'SF':
+                straight_total += cmd_value
+            else:  # SB
+                straight_total -= cmd_value
+
+            prev_straight = cmd_type
+        else:
+            # If we have accumulated straight movement, finalize it before other commands
+            if prev_straight is not None:
+                direction = 'SF' if straight_total > 0 else ('SB' if straight_total < 0 else None)
+                if direction:
+                    final_merged.append(f"{direction}{abs(straight_total):03d}")
+                straight_total = 0
+                prev_straight = None
+
+            final_merged.append(cmd)
+
+    # If there is leftover straight movement, add it
+    if prev_straight is not None:
+        direction = 'SF' if straight_total > 0 else ('SB' if straight_total < 0 else None)
+        if direction:
+            final_merged.append(f"{direction}{abs(straight_total):03d}")
+
+    return final_merged
 
 def main(input_file, output_file):
     """Main function for standalone path finding"""

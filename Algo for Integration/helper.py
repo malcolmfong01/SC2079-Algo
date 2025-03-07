@@ -112,8 +112,24 @@ def generate_commands(path):
                     # Convert BR00 to RB090
                     turn_command = f"RB{angle:03d}"
             
+            firstTwo = turn_command[:2]
+
+            if firstTwo == "RF":
+                commands.append("SF011")
+            elif firstTwo == "LF":
+                commands.append("SB025")
+            elif firstTwo == " LB":
+                commands.append("SB021")
+
             # Emit turn command
             commands.append(turn_command)
+
+            if firstTwo == "LF":
+                commands.append("SF006")
+            elif firstTwo == "RB":
+                commands.append("SB024")
+            elif firstTwo == "LB":
+                commands.append("SB041")
             
             # Handle snapshots
             if state['s'] != -1:
@@ -148,7 +164,6 @@ def generate_commands(path):
         # Update start position
         start_x, start_y = state['x'], state['y']
     
-    commands.append("FIN")
     return commands
 
 def process_path_finding(input_data):
